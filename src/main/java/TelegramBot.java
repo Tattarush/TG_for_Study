@@ -31,17 +31,23 @@ public class TelegramBot extends TelegramLongPollingBot {
             String message = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(String.valueOf(chatId));
-            sendMessage.setText("Что то получилось не до конца , но уже неплохо");
+            sendMessage(chatId, message);
+
+        }
+    }
+
+    private void sendMessage(long chatId, String textMessage) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+        sendMessage.setText("Что то получилось не до конца , но уже неплохо," +
+                " ты написал - " + textMessage);
 
 
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                System.out.println("Ошибка ответа");
-                e.printStackTrace();
-            }
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            System.out.println("Ошибка ответа");
+            e.printStackTrace();
         }
     }
 }
