@@ -1,0 +1,67 @@
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+/out/
+/production/
+/test-output/
+
+# Кэш, настройки и логи
+/.idea/
+.idea/*/*.xml
+.idea/caches/
+.idea/update/
+.idea/shelf/
+.idea/tasks/
+.idea/usage/
+.idea/dictionaries/
+.idea/inspectionProfiles/
+
+
+# Папка с проектом (если создается вне .idea)
+*.iws
+*.ipr
+
+### Maven ###
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Eclipse
+.settings/
+.project
+.classpath
+
+### Spring Boot
+*.log
+logs/
+tmp/
+*.tmp
+work/
+**/local.properties
+
+# Windows
+Thumbs.db
+ehthumbs_vista.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+### Misc ###
+# Локальные файлы окружения
+.env
+.env.local
+
+# Swap / резервные копии редакторов
+*~
+.*.swp
+.*.swo
+/src/test/
