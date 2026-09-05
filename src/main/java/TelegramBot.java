@@ -7,12 +7,22 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return System.getenv("botName");
+        String botName = System.getenv("botName");
+
+        if (botName == null && botName.isEmpty()) {
+            System.out.println("Имя бота не найдено!Проверь внимательно");
+        }
+        return botName;
     }
 
     @Override
     public String getBotToken() {
-        return System.getenv("token");
+        String botToken = System.getenv("token");
+
+        if (botToken == null && botToken.isEmpty()) {
+            System.out.println("Токен неверен! или не найден");
+        }
+        return botToken;
     }
 
     @Override
