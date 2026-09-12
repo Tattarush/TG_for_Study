@@ -39,7 +39,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void sendMessage(long chatId, String textMessage) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        sendMessage.setText("Что то получилось не до конца , но уже неплохо," +
+        sendMessage.setText("Что то получилось ,успех ," +
                 " ты написал - " + textMessage);
 
 
