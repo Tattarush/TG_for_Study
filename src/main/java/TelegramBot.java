@@ -29,8 +29,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
             }
             System.out.println("Белый список успешно загружен");
+        } else {
+            System.err.println("Список юзеров пуст!");
         }
-        System.err.println("Список юзеров пуст!");
     }
 
     @Override
