@@ -1,38 +1,33 @@
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final Set<Long> users = new HashSet<>();
-    private final Long admin_ID = Long.parseLong(System.getenv("Admin_ID"));
+    private final Long admin_ID;
 
     public TelegramBot() {
         super();
-        loadWhiteList();
-    }
-
-
-    private void loadWhiteList() {
+        // Загрузка списка разрешенных ид юзеров
+        this.admin_ID = Long.parseLong(System.getenv("Admin_ID"));
         String whiteUsers = System.getenv("Users");
         if (whiteUsers != null && !whiteUsers.isEmpty()) {
-            String[] splitId = whiteUsers.split(",");
-            for (String ids : splitId) {
-                try {
-                    users.add(Long.parseLong(ids.trim()));
-                } catch (NumberFormatException e) {
-                    System.out.println("Ошибка парсинга юзера - " + ids);
-                }
+            for (String idStr : whiteUsers.split(",")) {
+                users.add(Long.parseLong(idStr.trim()));
             }
             System.out.println("Белый список успешно загружен");
-        } else {
-            System.err.println("Список юзеров пуст!");
         }
     }
+
 
     @Override
     public String getBotUsername() {
@@ -78,25 +73,70 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
 
 
-        if (update.hasMessage() && update.getMessage().hasText()) {
+        if (update.hasCallbackQuery()) {
+            String callbackData = update.getCallbackQuery().getData();
 
-
-            String message = update.getMessage().getText();
-
-            switch (message) {
-                case "/start":
-                    sendMessage(chat_Id, "Доступ подтвержден!\n" +
-                            "Приветствую, " + update.getMessage().getFrom().getFirstName() +
-                            "\nЖду твоих команд!");
+            switch (callbackData) {
+                case "add_info_clicked":
+                    sendMessage(chat_Id, "Ты выбрал - добавить информацию");
                     break;
-                case "/help":
-                    sendMessage(chat_Id, "Список доступных команд");
-                    break;
-                default:
-                    sendMessage(chat_Id, "команда не распознана");
+                case "get_info_clicked":
+                    sendMessage(chat_Id, "Ты выбрал - внести информацию");
                     break;
             }
+        return;
+        }
 
+
+
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            String message = update.getMessage().getText();
+
+            if (message.equals("/start")) {
+                sendButtons(chat_Id, "Доступ подтвержден!\nПриветствую, " +
+                        update.getMessage().getFrom().getFirstName() + ".\nЧто ты хочешь сделать?");
+            } else {
+                sendMessage(chat_Id, "Команда не распознана, используй /start заново");
+            }
+        }
+
+    }
+
+
+    private void sendButtons(long chat_Id, String text) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chat_Id));
+        message.setText(text);
+
+        //создать сетку для кнопок
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowInLine = new ArrayList<>();
+
+        // Кнопка добавить информацию
+        InlineKeyboardButton buttonAdd = new InlineKeyboardButton();
+        buttonAdd.setText("Добавить инф");
+        buttonAdd.setCallbackData("add_info_clicked");
+
+        // кнопка запросить информацию
+        InlineKeyboardButton buttonGet = new InlineKeyboardButton();
+        buttonGet.setText("Запросить инф");
+        buttonGet.setCallbackData("get_info_clicked");
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(buttonAdd);
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        row2.add(buttonGet);
+
+        rowInLine.add(row1);
+        rowInLine.add(row2);
+        markup.setKeyboard(rowInLine);
+
+        message.setReplyMarkup(markup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.getMessage();
         }
 
     }
