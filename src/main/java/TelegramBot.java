@@ -61,8 +61,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             long chatID = update.getMessage().getChatId();
 
             if (!users.contains(userID)) {
-                sendMessage(chatID, "Пшел вон!");
-                System.out.println("Заблокирован доступ - ид "+userID);
+                sendMessage(chatID, "Брысь отсюда!");
+                System.out.println("Заблокирован доступ - ид " + userID);
+                return;
             }
 
 
@@ -71,10 +72,13 @@ public class TelegramBot extends TelegramLongPollingBot {
             switch (message) {
                 case "/start":
                     sendMessage(chatID, "Доступ подтвержден, жду команд");
+                    break;
                 case "/help":
                     sendMessage(chatID, "Список доступных команд");
+                    break;
                 default:
                     sendMessage(chatID, "команда не распознана");
+                    break;
             }
 
 
