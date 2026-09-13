@@ -9,7 +9,7 @@ import java.util.Set;
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final Set<Long> users = new HashSet<>();
-
+    private final Long admin_ID = Long.parseLong(System.getenv("Admin_ID"));
 
     public TelegramBot() {
         super();
@@ -63,6 +63,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             if (!users.contains(userID)) {
                 sendMessage(chatID, "Брысь отсюда!");
                 System.out.println("Заблокирован доступ - ид " + userID);
+                sendMessage(admin_ID, "Попытка доступа к боту, ИД юзера - "+ userID);
                 return;
             }
 
@@ -71,7 +72,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             switch (message) {
                 case "/start":
-                    sendMessage(chatID, "Доступ подтвержден, жду команд");
+                    sendMessage(chatID, "Доступ подтвержден!\n" +
+                            "Приветствую " + update.getMessage().getFrom().getFirstName()+
+                            "\nЖду твоих команд!");
                     break;
                 case "/help":
                     sendMessage(chatID, "Список доступных команд");
