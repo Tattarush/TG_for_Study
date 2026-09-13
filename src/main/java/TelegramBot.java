@@ -56,36 +56,49 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            long userID = update.getMessage().getFrom().getId();
-            long chatID = update.getMessage().getChatId();
 
-            if (!users.contains(userID)) {
-                sendMessage(chatID, "Брысь отсюда!");
-                System.out.println("Заблокирован доступ - ид " + userID);
-                sendMessage(admin_ID, "Попытка доступа к боту, ИД юзера - "+ userID);
+        long user_id = 0;
+        long chat_Id = 0;
+
+        if (update.hasMessage()) {
+            user_id = update.getMessage().getFrom().getId();
+            chat_Id = update.getMessage().getChatId();
+        } else if (update.hasCallbackQuery()) {
+            user_id = update.getCallbackQuery().getFrom().getId();
+            chat_Id = update.getCallbackQuery().getMessage().getChatId();
+        }
+
+        if (user_id == 0) return;
+
+        if (!users.contains(user_id)) {
+                sendMessage(chat_Id, "Брысь отсюда!");
+                System.out.println("Заблокирован доступ - ид " + user_id);
+                sendMessage(admin_ID, "Попытка доступа к боту, ИД юзера - "+ user_id);
                 return;
             }
+
+
+        if (update.hasMessage() && update.getMessage().hasText()) {
 
 
             String message = update.getMessage().getText();
 
             switch (message) {
                 case "/start":
-                    sendMessage(chatID, "Доступ подтвержден!\n" +
-                            "Приветствую " + update.getMessage().getFrom().getFirstName()+
+                    sendMessage(chat_Id, "Доступ подтвержден!\n" +
+                            "Приветствую, " + update.getMessage().getFrom().getFirstName() +
                             "\nЖду твоих команд!");
                     break;
                 case "/help":
-                    sendMessage(chatID, "Список доступных команд");
+                    sendMessage(chat_Id, "Список доступных команд");
                     break;
                 default:
-                    sendMessage(chatID, "команда не распознана");
+                    sendMessage(chat_Id, "команда не распознана");
                     break;
             }
 
-
         }
+
     }
 
     private void sendMessage(long chatId, String textMessage) {
@@ -98,7 +111,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             execute(sendMessage);
         } catch (TelegramApiException e) {
             System.out.println("Ошибка ответа");
-            e.printStackTrace();
+            e.getMessage();
         }
     }
 }
