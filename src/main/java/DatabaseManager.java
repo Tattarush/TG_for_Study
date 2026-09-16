@@ -10,6 +10,12 @@ public class DatabaseManager {
     private static final String PASS = "";
 
     public static Connection getConnection() throws SQLException {
+        try {
+            Class.forName("org.h2.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Драйвер не найден в библиотеках проекта");
+            e.printStackTrace();
+        }
         return DriverManager.getConnection(DB_URL, USER, PASS);
     }
 
