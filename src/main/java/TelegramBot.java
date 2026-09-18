@@ -1,3 +1,5 @@
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -12,6 +14,7 @@ import java.util.regex.Pattern;
 
 public class TelegramBot extends TelegramLongPollingBot {
 
+    private static final Logger log = LoggerFactory.getLogger(TelegramBot.class);
     private final Set<Long> users = new HashSet<>();
     private final Long admin_ID;
 
@@ -21,7 +24,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public TelegramBot() {
         super();
-        // Загрузка списка разрешенных ид юзеров
+        // Загрузка списка разрешенных ид юзеров и админа
         this.admin_ID = Long.parseLong(System.getenv("Admin_ID"));
         String whiteUsers = System.getenv("Users");
         if (whiteUsers != null && !whiteUsers.isEmpty()) {
@@ -94,10 +97,22 @@ public class TelegramBot extends TelegramLongPollingBot {
                     List<String> savedJson = DatabaseManager.getUserNote(userId);
                     if (!savedJson.isEmpty()) {
                         StringBuilder sb = new StringBuilder();
+                        sb.append("Полный список записей\n\n");
+
+                        com.google.gson.Gson gson = new com.google.gson.Gson();
                         for (String str : savedJson) {
-                            sb.append(str).append("\n");
+                            try {
+                                DTO.FinanceRecord record = gson.fromJson(str, DTO.FinanceRecord.class);
+                                sb
+                                        .append("Дата: ")
+                                        .append(record.getDate())
+                                        .append(" |  Сумма: ")
+                                        .append(record.getAmount()+"\n");
+                            } catch (com.google.gson.JsonSyntaxException e) {
+                                System.err.println("Ошибка десериализации");
+                            }
                         }
-                        sendMessage(chatId, "Твои записи в БД - \n" + sb);
+                        sendMessage(chatId,  sb.toString());
                     } else {
                         sendMessage(chatId, "В бд нет записей ");
                     }

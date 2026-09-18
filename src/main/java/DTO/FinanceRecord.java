@@ -32,8 +32,8 @@ public class FinanceRecord {
     @Override
     public String toString() {
         return "FinanceRecord{" +
-                "date='" + date + '\'' +
-                ", amount=" + amount +
+                "Дата = '" + date + '\'' +
+                ", Сумма = " + amount +
                 '}';
     }
 }
