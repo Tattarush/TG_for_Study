@@ -5,15 +5,19 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import DTO.FinanceRecord;
+import java.util.regex.Pattern;
 
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final Set<Long> users = new HashSet<>();
     private final Long admin_ID;
+
+    private final Map<Long, BotState> userStates = new HashMap<>();
+    private final Map<Long, FinanceRecord> temporaryData = new HashMap<>();
+
 
     public TelegramBot() {
         super();
@@ -72,16 +76,46 @@ public class TelegramBot extends TelegramLongPollingBot {
                 return;
             }
 
+        BotState currentState = userStates.getOrDefault(user_id, BotState.MAIN_MENU);
 
         if (update.hasCallbackQuery()) {
             String callbackData = update.getCallbackQuery().getData();
+            long chatId = update.getCallbackQuery().getMessage().getChatId();
+            long userId = update.getCallbackQuery().getFrom().getId();
 
             switch (callbackData) {
                 case "add_info_clicked":
-                    sendMessage(chat_Id, "Ты выбрал - добавить информацию");
+                    userStates.put(userId, BotState.AWAITING_INPUT);
+                    sendMessage(chatId, "Ты выбрал - добавить информацию");
+                    sendInputMenuWithBackButton(chatId, "Введите данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500");
                     break;
                 case "get_info_clicked":
                     sendMessage(chat_Id, "Ты выбрал - внести информацию");
+                    break;
+
+                case "back_to_main_clicked":
+                    userStates.put(userId, BotState.MAIN_MENU);
+                    temporaryData.remove(userId);
+                    sendButtons(chatId, "Возврат в главное меню");
+                    break;
+                case "confirm_yes_clicked":
+                    FinanceRecord record = temporaryData.get(userId);
+                    if (record != null) {
+                        String jsonString = new com.google.gson.Gson().toJson(record);
+                        sendMessage(chatId, "Данные успешно перенесены в JSON");
+                        temporaryData.remove(userId);
+                        userStates.put(chatId, BotState.MAIN_MENU);
+
+                        sendButtons(chatId, "Что дальше?");
+                    } else {
+                        sendMessage(chatId, "Произошла ошибка, данные не записаны");
+                        userStates.put(userId, BotState.MAIN_MENU);
+                    }
+                    break;
+                case "confirm_no_clicked":
+                    temporaryData.remove(userId);
+                    userStates.put(userId, BotState.AWAITING_INPUT);
+                    sendInputMenuWithBackButton(chatId, "Ввод отменен\nВведите данные");
                     break;
             }
         return;
@@ -92,14 +126,33 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String message = update.getMessage().getText();
 
-            if (message.equals("/start")) {
-                sendButtons(chat_Id, "Доступ подтвержден!\nПриветствую, " +
-                        update.getMessage().getFrom().getFirstName() + ".\nЧто ты хочешь сделать?");
-            } else {
-                sendMessage(chat_Id, "Команда не распознана, используй /start заново");
-            }
-        }
+            switch (currentState) {
 
+                case MAIN_MENU:
+                    if (message.equals("/start")) {
+                        sendButtons(chat_Id, "Доступ подтвержден!\nПриветствую, " +
+                                update.getMessage().getFrom().getFirstName() + ".\nЧто ты хочешь сделать?");
+                    } else {
+                        sendMessage(chat_Id, "Команда не распознана, используй /start заново");
+                    }
+                    break;
+
+                case AWAITING_INPUT:
+                    FinanceRecord record = parseAndValidateInput(message);
+                    if (record == null) {
+                        sendInputMenuWithBackButton(chat_Id, "Формат не соответствует!");
+                    } else {
+                        temporaryData.put(user_id, record);
+                        userStates.put(user_id, BotState.AWAITING_CONFIRMATION);
+                        sendConfirmationButtons(chat_Id, "Будет внесена запись:\nДата: " + record.getDate() +
+                                "\nСумма: " + record.getAmount() + "\n\nИнформация верна?");
+                    }
+                    break;
+                case AWAITING_CONFIRMATION:
+                    sendMessage(chat_Id, "Выберите да / нет");
+            }
+
+        }
     }
 
 
@@ -141,6 +194,67 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     }
 
+    // метод для ввода данных с кнопкой назад
+    private void sendInputMenuWithBackButton(long chatId, String text) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(text);
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowInline = new ArrayList<>();
+
+        InlineKeyboardButton buttonBack = new InlineKeyboardButton();
+        buttonBack.setText("Назад в главное меню");
+        buttonBack.setCallbackData("back_to_main_clicked");
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(buttonBack);
+        rowInline.add(row1);
+
+        markup.setKeyboard(rowInline);
+        message.setReplyMarkup(markup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //Метод для подтверждения кнопками да и нет
+
+    private void sendConfirmationButtons(long chatId, String text) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(text);
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+
+        InlineKeyboardButton buttonYes = new InlineKeyboardButton();
+        buttonYes.setText("Да");
+        buttonYes.setCallbackData("confirm_yes_clicked");
+
+        InlineKeyboardButton buttonNo = new InlineKeyboardButton();
+        buttonNo.setText("Нет");
+        buttonNo.setCallbackData("confirm_no_clicked");
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(buttonYes);
+        row1.add(buttonNo);
+
+        rowsInLine.add(row1);
+
+        markup.setKeyboard(rowsInLine);
+        message.setReplyMarkup(markup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendMessage(long chatId, String textMessage) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
@@ -154,4 +268,39 @@ public class TelegramBot extends TelegramLongPollingBot {
             e.getMessage();
         }
     }
+
+    // метод для валидации и парсинга принятого сообщения
+
+    private static final Pattern INPUT_PATTERN =
+            Pattern.compile("^\\d{4}\\.\\d{2}\\.\\d{2}\\s\\d+(\\.\\d{1,2})?$");
+
+    /**
+     * Метод проверяет строку пользователя и превращает её в объект FinanceRecord.
+     *
+     * @param text Строка от пользователя (например, "2026.09.16 5500")
+     * @return Объект с данными, или null, если формат не подошел
+     */
+
+    private FinanceRecord parseAndValidateInput(String text) {
+        if( text == null) return null;
+
+        String trimmedText = text.trim();
+
+        if (!INPUT_PATTERN.matcher(trimmedText).matches()) {
+            return null;
+        }
+
+        String[] parts = trimmedText.split(" ");
+        String datePart = parts[0];
+        String amountPart = parts[1];
+
+
+        try {
+            double amount = Double.parseDouble(amountPart);
+            return new FinanceRecord(datePart, amount);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
 }
