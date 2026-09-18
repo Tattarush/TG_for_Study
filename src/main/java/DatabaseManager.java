@@ -41,7 +41,7 @@ public class DatabaseManager {
         //Запрос merge into проверяет ключ key
         //если userId нет делает insert если есть делает update
 
-        String sql = "INSERT INTO user_notes (user_id, note_text) KEY(user_id) VALUES (?, ?);";
+        String sql = "INSERT INTO user_notes (user_id, note_text) VALUES (?, ?);";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setLong(1, userId);

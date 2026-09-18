@@ -90,10 +90,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                     sendInputMenuWithBackButton(chatId, "Введите данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500");
                     break;
                 case "get_info_clicked":
-                    sendMessage(chat_Id, "Ты выбрал - запросить информацию");
+                    sendMessage(chatId, "Ты выбрал - запросить информацию");
                     List<String> savedJson = DatabaseManager.getUserNote(userId);
-                    if (savedJson != null) {
-                        sendMessage(chatId, "Твои записи в БД - \n" + savedJson);
+                    if (!savedJson.isEmpty()) {
+                        StringBuilder sb = new StringBuilder();
+                        for (String str : savedJson) {
+                            sb.append(str).append("\n");
+                        }
+                        sendMessage(chatId, "Твои записи в БД - \n" + sb);
                     } else {
                         sendMessage(chatId, "В бд нет записей ");
                     }
