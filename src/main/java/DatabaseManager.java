@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class DatabaseManager {
 
@@ -34,7 +31,24 @@ public class DatabaseManager {
             e.printStackTrace();
         }
 
+    }
 
+    public static void saveUserNote(long userId, String jsonString) {
 
+        //Запрос merge into проверяет ключ key
+        //если userId нет делает insert если есть делает update
+
+        String sql = "MERGE INTO user_notes (user_id, note_text) KEY(user_id) VALUES (?, ?);";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            pstmt.setString(2, jsonString);
+
+            pstmt.executeUpdate();
+            System.out.println("Данные пользователя " + userId + " внесены");
+        } catch (SQLException e) {
+            System.err.println("Ошибка внесения информации в БД");
+            e.printStackTrace();
+        }
     }
 }

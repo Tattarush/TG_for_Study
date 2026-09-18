@@ -90,7 +90,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     sendInputMenuWithBackButton(chatId, "Введите данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500");
                     break;
                 case "get_info_clicked":
-                    sendMessage(chat_Id, "Ты выбрал - внести информацию");
+                    sendMessage(chat_Id, "Ты выбрал - запросить информацию");
                     break;
 
                 case "back_to_main_clicked":
@@ -103,8 +103,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                     if (record != null) {
                         String jsonString = new com.google.gson.Gson().toJson(record);
                         sendMessage(chatId, "Данные успешно перенесены в JSON");
+                        DatabaseManager.saveUserNote(userId, jsonString);
                         temporaryData.remove(userId);
-                        userStates.put(chatId, BotState.MAIN_MENU);
+                        userStates.put(userId, BotState.MAIN_MENU);
 
                         sendButtons(chatId, "Что дальше?");
                     } else {
