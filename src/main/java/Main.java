@@ -4,12 +4,12 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class Main {
     public static void main(String[] args) {
-
+        //инициализация БД
         DatabaseManager.initDatabase();
 
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-
+            //Регистрация бота
             TelegramBot myBot = new TelegramBot();
 
             telegramBotsApi.registerBot(myBot);
