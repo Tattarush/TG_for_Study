@@ -91,6 +91,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                     break;
                 case "get_info_clicked":
                     sendMessage(chat_Id, "Ты выбрал - запросить информацию");
+                    List<String> savedJson = DatabaseManager.getUserNote(userId);
+                    if (savedJson != null) {
+                        sendMessage(chatId, "Твои записи в БД - \n" + savedJson);
+                    } else {
+                        sendMessage(chatId, "В бд нет записей ");
+                    }
                     break;
 
                 case "back_to_main_clicked":
