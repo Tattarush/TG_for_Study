@@ -4,7 +4,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
@@ -90,7 +89,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "add_info_clicked":
                     userStates.put(userId, BotState.AWAITING_INPUT);
                     sendMessage(chatId, "Ты выбрал - добавить информацию");
-                    sendInputMenuWithBackButton(chatId, "Введите данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500");
+                    sendMessageWithKeyboard(chatId, "Введите данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500",InlineKeyboardFactory.createBackButtonKeyboard());
+
                     break;
                 case "get_info_clicked":
                     sendMessage(chatId, "Ты выбрал - запросить информацию");
@@ -121,7 +121,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "back_to_main_clicked":
                     userStates.put(userId, BotState.MAIN_MENU);
                     temporaryData.remove(userId);
-                    sendButtons(chatId, "Возврат в главное меню");
+                    sendMessageWithKeyboard(chatId, "Возврат в главное меню",InlineKeyboardFactory.createMainMenuKeyboard());
                     break;
                 case "confirm_yes_clicked":
                     FinanceRecord record = temporaryData.get(userId);
@@ -132,7 +132,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         temporaryData.remove(userId);
                         userStates.put(userId, BotState.MAIN_MENU);
 
-                        sendButtons(chatId, "Что дальше?");
+                        sendMessageWithKeyboard(chatId, "Что дальше?",InlineKeyboardFactory.createMainMenuKeyboard());
                     } else {
                         sendMessage(chatId, "Произошла ошибка, данные не записаны");
                         userStates.put(userId, BotState.MAIN_MENU);
@@ -141,7 +141,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "confirm_no_clicked":
                     temporaryData.remove(userId);
                     userStates.put(userId, BotState.AWAITING_INPUT);
-                    sendInputMenuWithBackButton(chatId, "Ввод отменен\nВведите данные");
+                    sendMessageWithKeyboard(chatId, "Ввод отменен\nВведите данные", InlineKeyboardFactory.createBackButtonKeyboard());
                     break;
             }
         return;
@@ -156,8 +156,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
                 case MAIN_MENU:
                     if (message.equals("/start")) {
-                        sendButtons(chat_Id, "Доступ подтвержден!\nПриветствую, " +
-                                update.getMessage().getFrom().getFirstName() + ".\nЧто ты хочешь сделать?");
+                       sendMessageWithKeyboard(chat_Id, "Доступ подтвержден!\nПриветствую, " +
+                                update.getMessage().getFrom().getFirstName() + ".\nЧто ты хочешь сделать?", InlineKeyboardFactory.createMainMenuKeyboard());
                     } else {
                         sendMessage(chat_Id, "Команда не распознана, используй /start заново");
                     }
@@ -166,12 +166,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case AWAITING_INPUT:
                     FinanceRecord record = parseAndValidateInput(message);
                     if (record == null) {
-                        sendInputMenuWithBackButton(chat_Id, "Формат не соответствует!");
+                        sendMessageWithKeyboard(chat_Id, "Формат не соответствует!", InlineKeyboardFactory.createBackButtonKeyboard());
                     } else {
                         temporaryData.put(user_id, record);
                         userStates.put(user_id, BotState.AWAITING_CONFIRMATION);
-                        sendConfirmationButtons(chat_Id, "Будет внесена запись:\nДата: " + record.getDate() +
-                                "\nСумма: " + record.getAmount() + "\n\nИнформация верна?");
+                        sendMessageWithKeyboard(chat_Id, "Будет внесена запись:\nДата: " + record.getDate() +
+                                "\nСумма: " + record.getAmount() + "\n\nИнформация верна?",InlineKeyboardFactory.createConfirmationKeyboard());
                     }
                     break;
                 case AWAITING_CONFIRMATION:
@@ -181,99 +181,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-
-    private void sendButtons(long chat_Id, String text) {
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chat_Id));
-        message.setText(text);
-
-        //создать сетку для кнопок
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowInLine = new ArrayList<>();
-
-        // Кнопка добавить информацию
-        InlineKeyboardButton buttonAdd = new InlineKeyboardButton();
-        buttonAdd.setText("Добавить инф");
-        buttonAdd.setCallbackData("add_info_clicked");
-
-        // кнопка запросить информацию
-        InlineKeyboardButton buttonGet = new InlineKeyboardButton();
-        buttonGet.setText("Запросить инф");
-        buttonGet.setCallbackData("get_info_clicked");
-
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(buttonAdd);
-        List<InlineKeyboardButton> row2 = new ArrayList<>();
-        row2.add(buttonGet);
-
-        rowInLine.add(row1);
-        rowInLine.add(row2);
-        markup.setKeyboard(rowInLine);
-
-        message.setReplyMarkup(markup);
-
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            e.getMessage();
-        }
-
-    }
-
-    // метод для ввода данных с кнопкой назад
-    private void sendInputMenuWithBackButton(long chatId, String text) {
+    private void sendMessageWithKeyboard(long chatId, String text, InlineKeyboardMarkup keyboard) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(text);
 
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowInline = new ArrayList<>();
-
-        InlineKeyboardButton buttonBack = new InlineKeyboardButton();
-        buttonBack.setText("Назад в главное меню");
-        buttonBack.setCallbackData("back_to_main_clicked");
-
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(buttonBack);
-        rowInline.add(row1);
-
-        markup.setKeyboard(rowInline);
-        message.setReplyMarkup(markup);
-
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+        if (keyboard != null) {
+            message.setReplyMarkup(keyboard);
         }
-    }
-
-    //Метод для подтверждения кнопками да и нет
-
-    private void sendConfirmationButtons(long chatId, String text) {
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText(text);
-
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-
-        InlineKeyboardButton buttonYes = new InlineKeyboardButton();
-        buttonYes.setText("Да");
-        buttonYes.setCallbackData("confirm_yes_clicked");
-
-        InlineKeyboardButton buttonNo = new InlineKeyboardButton();
-        buttonNo.setText("Нет");
-        buttonNo.setCallbackData("confirm_no_clicked");
-
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(buttonYes);
-        row1.add(buttonNo);
-
-        rowsInLine.add(row1);
-
-        markup.setKeyboard(rowsInLine);
-        message.setReplyMarkup(markup);
-
         try {
             execute(message);
         } catch (TelegramApiException e) {
