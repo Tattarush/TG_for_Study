@@ -1,5 +1,6 @@
 package com.bot;
 
+import com.bot.handlers.ConfirmationHandler;
 import com.bot.handlers.InputInfoHandler;
 import com.bot.handlers.MainMenuHandler;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -25,6 +26,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     //Обработчики событий
     private final MainMenuHandler mainMenuHandler = new MainMenuHandler(this);
     private final InputInfoHandler inputInfoHandler = new InputInfoHandler(this);
+    private final ConfirmationHandler confirmationHandler = new ConfirmationHandler(this);
+
 
     public TelegramBot() {
         super();
@@ -38,7 +41,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             System.out.println("Белый список успешно загружен");
         }
     }
-
 
     @Override
     public String getBotUsername() {
@@ -91,74 +93,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 return;
             }
 
-        if (update.hasCallbackQuery()) {
-            String callbackData = update.getCallbackQuery().getData();
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
-            long userId = update.getCallbackQuery().getFrom().getId();
-
-            switch (callbackData) {
-
-                case "add_info_clicked":
-                    userStates.put(userId, BotState.AWAITING_INPUT);
-                    sendMessage(chatId, "Ты выбрал - добавить информацию");
-                    sendMessageWithKeyboard(chatId, "Введи данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500", InlineKeyboardFactory.createBackButtonKeyboard());
-
-                    break;
-                case "get_info_clicked":
-                    sendMessage(chatId, "Ты выбрал - запросить информацию");
-                    List<String> savedJson = DatabaseManager.getUserNote(userId);
-                    if (!savedJson.isEmpty()) {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("Полный список записей\n\n");
-                        com.google.gson.Gson gson = new com.google.gson.Gson();
-                        for (String str : savedJson) {
-                            try {
-                                FinanceRecord record = gson.fromJson(str, FinanceRecord.class);
-                                sb
-                                        .append("Дата: ")
-                                        .append(record.getDate())
-                                        .append(" |  Сумма: ")
-                                        .append(record.getAmount()+"\n");
-                            } catch (com.google.gson.JsonSyntaxException e) {
-                                System.err.println("Ошибка десериализации");
-                            }
-                        }
-
-                        sendMessageWithKeyboard(chatId,sb.toString(),InlineKeyboardFactory.createBackButtonKeyboard());
-                    } else {
-                        sendMessage(chatId, "В бд нет записей ");
-                    }
-                    break;
-
-                case "back_to_main_clicked":
-                    userStates.put(userId, BotState.MAIN_MENU);
-                    temporaryData.remove(userId);
-                    sendMessageWithKeyboard(chatId, "Возврат в главное меню",InlineKeyboardFactory.createMainMenuKeyboard());
-                    break;
-                case "confirm_yes_clicked":
-                    FinanceRecord record = temporaryData.get(userId);
-                    if (record != null) {
-                        String jsonString = new com.google.gson.Gson().toJson(record);
-                        sendMessage(chatId, "Данные успешно перенесены в JSON");
-                        DatabaseManager.saveUserNote(userId, jsonString);
-                        temporaryData.remove(userId);
-                        userStates.put(userId, BotState.MAIN_MENU);
-
-                        sendMessageWithKeyboard(chatId, "Что дальше?",InlineKeyboardFactory.createMainMenuKeyboard());
-                    } else {
-                        sendMessage(chatId, "Произошла ошибка, данные не записаны");
-                        userStates.put(userId, BotState.MAIN_MENU);
-                    }
-                    break;
-                case "confirm_no_clicked":
-                    temporaryData.remove(userId);
-                    userStates.put(userId, BotState.AWAITING_INPUT);
-                    sendMessageWithKeyboard(chatId, "Ввод данных отменен\n", InlineKeyboardFactory.createBackButtonKeyboard());
-                    break;
-            }
-        return;
-        }
-
         BotState currentState = userStates.getOrDefault(user_id, BotState.MAIN_MENU);
 
 
@@ -173,7 +107,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                     break;
 
                 case AWAITING_CONFIRMATION:
-                    sendMessage(chat_Id, "Выбери да / нет");
+                    confirmationHandler.handle(update, user_id, chat_Id);
+                    break;
             }
 
         }
@@ -194,7 +129,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendMessage(long chatId, String textMessage) {
+    public void sendMessage(long chatId, String textMessage) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(textMessage);

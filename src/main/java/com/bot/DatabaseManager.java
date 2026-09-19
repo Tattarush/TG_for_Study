@@ -38,21 +38,7 @@ public class DatabaseManager {
 
     }
 
-    public static void saveUserNote(long userId, String jsonString) {
 
-        String sql = "INSERT INTO user_notes (user_id, note_text) VALUES (?, ?);";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, userId);
-            pstmt.setString(2, jsonString);
-
-            pstmt.executeUpdate();
-            System.out.println("Данные пользователя " + userId + " внесены");
-        } catch (SQLException e) {
-            System.err.println("Ошибка внесения информации в БД");
-            e.printStackTrace();
-        }
-    }
 
     public static List<String> getUserNote(long userId) {
         List<String> notes = new ArrayList<>();
