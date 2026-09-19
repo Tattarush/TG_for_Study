@@ -114,4 +114,34 @@ public class InlineKeyboardFactory {
         return markupInline;
     }
 
+    public static InlineKeyboardMarkup createAddInfoMenuKeyboard() {
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowLine = new ArrayList<>();
+
+        InlineKeyboardButton buttonNew = new InlineKeyboardButton();
+        buttonNew.setText("Внести новую информацию");
+        buttonNew.setCallbackData("add_new_info_clicked");
+
+        InlineKeyboardButton buttonEdit = new InlineKeyboardButton();
+        buttonEdit.setText("Редактировать информацию");
+        buttonEdit.setCallbackData("edit_info_clicked");
+
+        InlineKeyboardButton buttonBack = new InlineKeyboardButton();
+        buttonBack.setText("Назад в главное меню");
+        buttonBack.setCallbackData("back_to_main_clicked");
+
+
+        List<InlineKeyboardButton> r1 = new ArrayList<>();
+        r1.add(buttonNew);
+        List<InlineKeyboardButton> r2 = new ArrayList<>();
+        r2.add(buttonEdit);
+        List<InlineKeyboardButton> r3 = new ArrayList<>();
+        r3.add(buttonBack);
+        rowLine.add(r1);
+        rowLine.add(r2);
+        rowLine.add(r3);
+        markupInline.setKeyboard(rowLine);
+        return markupInline;
+    }
+
 }
