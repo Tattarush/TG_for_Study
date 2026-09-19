@@ -37,23 +37,4 @@ public class DatabaseManager {
         }
 
     }
-
-
-
-    public static List<String> getUserNote(long userId) {
-        List<String> notes = new ArrayList<>();
-        String sql = "SELECT note_text FROM user_notes WHERE user_id = ?;";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, userId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    notes.add(rs.getString("note_text"));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return notes;
-    }
 }

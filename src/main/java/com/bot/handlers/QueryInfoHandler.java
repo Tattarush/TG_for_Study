@@ -101,7 +101,7 @@ public class QueryInfoHandler implements BotHandler {
     //Метод - обработка конкретной даты
     private void handleSingleDateInput(long userId, long chatId, String text) {
         if (!SINGLE_DATE_PATTERN.matcher(text).matches()) {
-            bot.sendMessageWithKeyboard(chatId, "Формат даты неверный!",
+            bot.sendMessageWithKeyboard(chatId, "Формат периода неверный!\nПопробуй еще раз",
                     InlineKeyboardFactory.createBackButtonKeyboard());
             return;
         }
@@ -116,7 +116,10 @@ public class QueryInfoHandler implements BotHandler {
             }
         }
         if (sortedData.isEmpty()) {
-            bot.sendMessageWithKeyboard(chatId, "За дату " + text + " записей не найдено", InlineKeyboardFactory.createQueryMenuKeyboard());
+            bot.sendMessageWithKeyboard(chatId, "За дату " + text + " записей не найдено\nПродолжим поиск информации?",
+                    InlineKeyboardFactory.createQueryMenuKeyboard());
+            bot.getUserStates().put(userId, BotState.QUERY_MENU);
+            return;
         } else {
             renderBeautifulOutput(chatId, sortedData, "Информация по выбранной дате");
         }
@@ -127,7 +130,7 @@ public class QueryInfoHandler implements BotHandler {
 
     private void handlePeriodInput(long userId, long chatId, String text) {
         if (!PERIOD_PATTERN.matcher(text).matches()) {
-            bot.sendMessageWithKeyboard(chatId, "Формат периода неверный!",
+            bot.sendMessageWithKeyboard(chatId, "Формат периода неверный!\nПопробуй еще раз",
                     InlineKeyboardFactory.createQueryMenuKeyboard());
             return;
         }
@@ -149,8 +152,10 @@ public class QueryInfoHandler implements BotHandler {
             }
         }
         if (sortedData.isEmpty()) {
-            bot.sendMessageWithKeyboard(chatId, "За период с " + startDate + " по " + endDate + " записей не найдено.",
+            bot.sendMessageWithKeyboard(chatId, "За период с " + startDate + " по " + endDate + " записей не найдено.\nПродолжим поиск информации?",
                     InlineKeyboardFactory.createQueryMenuKeyboard());
+            bot.getUserStates().put(userId, BotState.QUERY_MENU);
+            return;
         } else {
             renderBeautifulOutput(chatId, sortedData, "Результат выборки за период \n(" + startDate + " — " + endDate + "):\n");
         }

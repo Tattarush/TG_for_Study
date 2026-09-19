@@ -26,7 +26,7 @@ public class MainMenuHandler implements BotHandler {
             if ("add_info_clicked".equals(callbackData)) {
                 bot.getUserStates().put(userId, BotState.AWAITING_INPUT);// меняем состояние через геттер бота
                 bot.sendMessageWithKeyboard(chatId,
-                        "Введите данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500",
+                        "Введи данные в формате:\nгод.месяц.число(пробел)сумма\nПример: 2026.09.18 5500",
                         InlineKeyboardFactory.createBackButtonKeyboard());
             } else if ("get_info_clicked".equals(callbackData)) {
                 bot.getUserStates().put(userId, BotState.QUERY_MENU);
@@ -39,7 +39,7 @@ public class MainMenuHandler implements BotHandler {
                 bot.sendMessageWithKeyboard(chatId, "Доступ подтвержден!\nПриветствую, " +
                         update.getMessage().getFrom().getFirstName() + ".\nЧто ты хочешь сделать?", InlineKeyboardFactory.createMainMenuKeyboard());
             } else {
-                bot.sendMessageWithKeyboard(chatId, "Команда не распознана, используй /start заново", null);
+                bot.sendMessageWithKeyboard(chatId, "Команда не распознана, используй\n/start заново", null);
             }
 
         }
