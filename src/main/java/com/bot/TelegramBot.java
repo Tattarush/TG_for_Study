@@ -1,5 +1,7 @@
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package com.bot;
+
+import com.bot.handlers.InputInfoHandler;
+import com.bot.handlers.MainMenuHandler;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -8,18 +10,21 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
 
-import DTO.FinanceRecord;
-import java.util.regex.Pattern;
+import com.bot.DTO.FinanceRecord;
+
 
 public class TelegramBot extends TelegramLongPollingBot {
 
-    private static final Logger log = LoggerFactory.getLogger(TelegramBot.class);
+
     private final Set<Long> users = new HashSet<>();
     private final Long admin_ID;
 
     private final Map<Long, BotState> userStates = new HashMap<>();
     private final Map<Long, FinanceRecord> temporaryData = new HashMap<>();
 
+    //Обработчики событий
+    private final MainMenuHandler mainMenuHandler = new MainMenuHandler(this);
+    private final InputInfoHandler inputInfoHandler = new InputInfoHandler(this);
 
     public TelegramBot() {
         super();
@@ -55,6 +60,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         return botToken;
     }
 
+    public Map<Long, BotState> getUserStates() {
+        return userStates;
+    }
+
+    public Map<Long, FinanceRecord> getTemporaryData() {
+        return temporaryData;
+    }
+
     @Override
     public void onUpdateReceived(Update update) {
 
@@ -78,18 +91,17 @@ public class TelegramBot extends TelegramLongPollingBot {
                 return;
             }
 
-        BotState currentState = userStates.getOrDefault(user_id, BotState.MAIN_MENU);
-
         if (update.hasCallbackQuery()) {
             String callbackData = update.getCallbackQuery().getData();
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             long userId = update.getCallbackQuery().getFrom().getId();
 
             switch (callbackData) {
+
                 case "add_info_clicked":
                     userStates.put(userId, BotState.AWAITING_INPUT);
                     sendMessage(chatId, "Ты выбрал - добавить информацию");
-                    sendMessageWithKeyboard(chatId, "Введите данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500",InlineKeyboardFactory.createBackButtonKeyboard());
+                    sendMessageWithKeyboard(chatId, "Введи данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500", InlineKeyboardFactory.createBackButtonKeyboard());
 
                     break;
                 case "get_info_clicked":
@@ -98,11 +110,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                     if (!savedJson.isEmpty()) {
                         StringBuilder sb = new StringBuilder();
                         sb.append("Полный список записей\n\n");
-
                         com.google.gson.Gson gson = new com.google.gson.Gson();
                         for (String str : savedJson) {
                             try {
-                                DTO.FinanceRecord record = gson.fromJson(str, DTO.FinanceRecord.class);
+                                FinanceRecord record = gson.fromJson(str, FinanceRecord.class);
                                 sb
                                         .append("Дата: ")
                                         .append(record.getDate())
@@ -112,7 +123,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                                 System.err.println("Ошибка десериализации");
                             }
                         }
-                        sendMessage(chatId,  sb.toString());
+
+                        sendMessageWithKeyboard(chatId,sb.toString(),InlineKeyboardFactory.createBackButtonKeyboard());
                     } else {
                         sendMessage(chatId, "В бд нет записей ");
                     }
@@ -141,47 +153,33 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "confirm_no_clicked":
                     temporaryData.remove(userId);
                     userStates.put(userId, BotState.AWAITING_INPUT);
-                    sendMessageWithKeyboard(chatId, "Ввод отменен\nВведите данные", InlineKeyboardFactory.createBackButtonKeyboard());
+                    sendMessageWithKeyboard(chatId, "Ввод данных отменен\n", InlineKeyboardFactory.createBackButtonKeyboard());
                     break;
             }
         return;
         }
 
+        BotState currentState = userStates.getOrDefault(user_id, BotState.MAIN_MENU);
 
-
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String message = update.getMessage().getText();
 
             switch (currentState) {
 
                 case MAIN_MENU:
-                    if (message.equals("/start")) {
-                       sendMessageWithKeyboard(chat_Id, "Доступ подтвержден!\nПриветствую, " +
-                                update.getMessage().getFrom().getFirstName() + ".\nЧто ты хочешь сделать?", InlineKeyboardFactory.createMainMenuKeyboard());
-                    } else {
-                        sendMessage(chat_Id, "Команда не распознана, используй /start заново");
-                    }
+                   mainMenuHandler.handle(update,user_id, chat_Id);
                     break;
 
                 case AWAITING_INPUT:
-                    FinanceRecord record = parseAndValidateInput(message);
-                    if (record == null) {
-                        sendMessageWithKeyboard(chat_Id, "Формат не соответствует!", InlineKeyboardFactory.createBackButtonKeyboard());
-                    } else {
-                        temporaryData.put(user_id, record);
-                        userStates.put(user_id, BotState.AWAITING_CONFIRMATION);
-                        sendMessageWithKeyboard(chat_Id, "Будет внесена запись:\nДата: " + record.getDate() +
-                                "\nСумма: " + record.getAmount() + "\n\nИнформация верна?",InlineKeyboardFactory.createConfirmationKeyboard());
-                    }
+                    inputInfoHandler.handle(update, user_id, chat_Id);
                     break;
+
                 case AWAITING_CONFIRMATION:
-                    sendMessage(chat_Id, "Выберите да / нет");
+                    sendMessage(chat_Id, "Выбери да / нет");
             }
 
         }
-    }
 
-    private void sendMessageWithKeyboard(long chatId, String text, InlineKeyboardMarkup keyboard) {
+
+    public void sendMessageWithKeyboard(long chatId, String text, InlineKeyboardMarkup keyboard) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(text);
@@ -209,39 +207,4 @@ public class TelegramBot extends TelegramLongPollingBot {
             e.getMessage();
         }
     }
-
-    // метод для валидации и парсинга принятого сообщения
-
-    private static final Pattern INPUT_PATTERN =
-            Pattern.compile("^\\d{4}\\.\\d{2}\\.\\d{2}\\s\\d+(\\.\\d{1,2})?$");
-
-    /**
-     * Метод проверяет строку пользователя и превращает её в объект FinanceRecord.
-     *
-     * @param text Строка от пользователя (например, "2026.09.16 5500")
-     * @return Объект с данными, или null, если формат не подошел
-     */
-
-    private FinanceRecord parseAndValidateInput(String text) {
-        if( text == null) return null;
-
-        String trimmedText = text.trim();
-
-        if (!INPUT_PATTERN.matcher(trimmedText).matches()) {
-            return null;
-        }
-
-        String[] parts = trimmedText.split(" ");
-        String datePart = parts[0];
-        String amountPart = parts[1];
-
-
-        try {
-            double amount = Double.parseDouble(amountPart);
-            return new FinanceRecord(datePart, amount);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
 }

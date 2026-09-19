@@ -1,3 +1,5 @@
+package com.bot;
+
 public enum BotState {
     MAIN_MENU,
     AWAITING_INPUT,

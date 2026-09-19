@@ -1,4 +1,4 @@
-package DTO;
+package com.bot.DTO;
 
 public class FinanceRecord {
     private String date;

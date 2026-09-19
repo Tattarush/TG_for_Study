@@ -1,3 +1,5 @@
+package com.bot;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +39,6 @@ public class DatabaseManager {
     }
 
     public static void saveUserNote(long userId, String jsonString) {
-
-        //Запрос merge into проверяет ключ key
-        //если userId нет делает insert если есть делает update
 
         String sql = "INSERT INTO user_notes (user_id, note_text) VALUES (?, ?);";
         try (Connection conn = getConnection();
