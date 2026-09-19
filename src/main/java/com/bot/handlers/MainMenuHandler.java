@@ -29,16 +29,9 @@ public class MainMenuHandler implements BotHandler {
                         "Введите данные в формате: год.месяц.число(пробел)сумма\nПример: 2026.09.18 5500",
                         InlineKeyboardFactory.createBackButtonKeyboard());
             } else if ("get_info_clicked".equals(callbackData)) {
-                //Позже прикрутить логику запроса информации
-                List<String> notes = FinanceDAO.getAllUserNotes(userId);
-                StringBuilder sb = new StringBuilder();
-                sb.append("Все записи \n\n");
-                for (String str : notes) {
-                    sb
-                            .append(str+"\n");
-                }
-                bot.sendMessage(chatId, sb.toString());
-                bot.sendMessageWithKeyboard(chatId,"Информация выгружена\nВозврат в главное меню" ,InlineKeyboardFactory.createMainMenuKeyboard());
+                bot.getUserStates().put(userId, BotState.QUERY_MENU);
+                bot.sendMessageWithKeyboard(chatId,"Выбери что хочешь запросить",
+                        InlineKeyboardFactory.createQueryMenuKeyboard());
             }
         } else if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();

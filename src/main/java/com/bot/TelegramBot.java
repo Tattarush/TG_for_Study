@@ -3,6 +3,7 @@ package com.bot;
 import com.bot.handlers.ConfirmationHandler;
 import com.bot.handlers.InputInfoHandler;
 import com.bot.handlers.MainMenuHandler;
+import com.bot.handlers.QueryInfoHandler;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -27,6 +28,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final MainMenuHandler mainMenuHandler = new MainMenuHandler(this);
     private final InputInfoHandler inputInfoHandler = new InputInfoHandler(this);
     private final ConfirmationHandler confirmationHandler = new ConfirmationHandler(this);
+    private final QueryInfoHandler queryInfoHandler = new QueryInfoHandler(this);
 
 
     public TelegramBot() {
@@ -108,6 +110,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 
                 case AWAITING_CONFIRMATION:
                     confirmationHandler.handle(update, user_id, chat_Id);
+                    break;
+
+                case QUERY_MENU:
+                case AWAITING_PERIOD_INPUT:
+                case AWAITING_SINGLE_DATE:
+                    queryInfoHandler.handle(update, user_id, chat_Id);
                     break;
             }
 

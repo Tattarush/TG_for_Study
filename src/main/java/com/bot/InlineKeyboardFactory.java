@@ -76,4 +76,42 @@ public class InlineKeyboardFactory {
         return markupInline;
     }
 
+    public static InlineKeyboardMarkup createQueryMenuKeyboard() {
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowInline = new ArrayList<>();
+//        Кнопка выбора всех записей
+        InlineKeyboardButton buttonAll = new InlineKeyboardButton();
+        buttonAll.setText("Все записи");
+        buttonAll.setCallbackData("query_all_clicked");
+//кнопка периода
+        InlineKeyboardButton buttonPeriod = new InlineKeyboardButton();
+        buttonPeriod.setText("За период");
+        buttonPeriod.setCallbackData("query_period_clicked");
+//Кнопка конкретной записи
+        InlineKeyboardButton buttonSingle = new InlineKeyboardButton();
+        buttonSingle.setText("За конкретную дату");
+        buttonSingle.setCallbackData("query_single_clicked");
+//Кнопка назад
+        InlineKeyboardButton buttonBack = new InlineKeyboardButton();
+        buttonBack.setText("Назад");
+        buttonBack.setCallbackData("back_to_main_clicked");
+
+//       Разметка кнопок по 1 в ряд
+
+        List<InlineKeyboardButton> r1 = new ArrayList<>();
+        r1.add(buttonAll);
+        List<InlineKeyboardButton> r2 = new ArrayList<>();
+        r2.add(buttonPeriod);
+        List<InlineKeyboardButton> r3 = new ArrayList<>();
+        r3.add(buttonSingle);
+        List<InlineKeyboardButton> r4 = new ArrayList<>();
+        r4.add(buttonBack);
+
+        rowInline.add(r1);rowInline.add(r2);
+        rowInline.add(r3);rowInline.add(r4);
+
+        markupInline.setKeyboard(rowInline);
+        return markupInline;
+    }
+
 }
