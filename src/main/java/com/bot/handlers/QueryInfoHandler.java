@@ -41,12 +41,12 @@ public class QueryInfoHandler implements BotHandler {
                 case "query_period_clicked":
                     bot.getUserStates().put(userId, BotState.AWAITING_PERIOD_INPUT);
                     bot.sendMessageWithKeyboard(chatId, "Введи желаемый диапазон дат\n" +
-                                    "В формате \\nГГГГ.ММ.ДД - ГГГГ.ММ.ДД\\nПример: 2026.01.01 - 2026.05.01 ",
+                                    "В формате \nГГГГ.ММ.ДД - ГГГГ.ММ.ДД\nПример: 2026.01.01 - 2026.05.01 ",
                             InlineKeyboardFactory.createBackButtonKeyboard());
                     break;
                 case "query_single_clicked":
                     bot.getUserStates().put(userId, BotState.AWAITING_SINGLE_DATE);
-                    bot.sendMessageWithKeyboard(chatId, "Введи конкретную дату в формате:\\nГГГГ.ММ.ДД\\nПример: 2026.09.19",
+                    bot.sendMessageWithKeyboard(chatId, "Введи конкретную дату в формате:\nГГГГ.ММ.ДД\nПример: 2026.09.19",
                             InlineKeyboardFactory.createBackButtonKeyboard());
                     break;
                 case "back_to_main_clicked":
@@ -94,7 +94,7 @@ public class QueryInfoHandler implements BotHandler {
             FinanceRecord r = gson.fromJson(json, FinanceRecord.class);
             sortedData.put(r.getDate(), sortedData.getOrDefault(r.getDate(), 0.0) + r.getAmount());
         }
-        renderBeautifulOutput(chatId, sortedData, "Полная история записей по порядку\n\n");
+        renderBeautifulOutput(chatId, sortedData, "Полная история записей по порядку\n");
         bot.getUserStates().put(userId, BotState.MAIN_MENU);
     }
 
@@ -152,7 +152,7 @@ public class QueryInfoHandler implements BotHandler {
             bot.sendMessageWithKeyboard(chatId, "За период с " + startDate + " по " + endDate + " записей не найдено.",
                     InlineKeyboardFactory.createQueryMenuKeyboard());
         } else {
-            renderBeautifulOutput(chatId, sortedData, "Результат выборки за период (\" + startDate + \" — \" + endDate + \"):");
+            renderBeautifulOutput(chatId, sortedData, "Результат выборки за период \n(" + startDate + " — " + endDate + "):\n");
         }
         bot.getUserStates().put(userId, BotState.MAIN_MENU);
     }
@@ -160,14 +160,14 @@ public class QueryInfoHandler implements BotHandler {
     //Вспомогательный метод для красивой обертки текста
     private void renderBeautifulOutput(long chatId, Map<String, Double> sortedData, String title) {
         StringBuilder sb = new StringBuilder();
-        sb.append(title).append("\n\n");
+        sb.append(title).append("\n");
         double totalSum = 0;
 
         for (Map.Entry<String, Double> entry : sortedData.entrySet()) {
-            sb.append(entry.getKey()).append(" | ").append(entry.getValue());
+            sb.append(entry.getKey()).append(" | ").append(entry.getValue()).append("\n");
             totalSum += entry.getValue();
         }
-        sb.append("\n\n")
+        sb.append("\n")
                 .append("Итого полная сумма\nза выбранные даты - ")
                 .append(totalSum);
         bot.sendMessageWithKeyboard(chatId,sb.toString(),
