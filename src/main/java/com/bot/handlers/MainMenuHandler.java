@@ -24,10 +24,10 @@ public class MainMenuHandler implements BotHandler {
             String callbackData = update.getCallbackQuery().getData();
 
             if ("add_info_clicked".equals(callbackData)) {
-                bot.getUserStates().put(userId, BotState.AWAITING_INPUT);// меняем состояние через геттер бота
+                bot.getUserStates().put(userId, BotState.ADD_INFO_MENU);// меняем состояние через геттер бота
                 bot.sendMessageWithKeyboard(chatId,
-                        "Введи данные в формате:\nгод.месяц.число(пробел)сумма\nПример: 2026.09.18 5500",
-                        InlineKeyboardFactory.createBackButtonKeyboard());
+                        "Какое действие хочешь сделать?",
+                        InlineKeyboardFactory.createAddInfoMenuKeyboard());
             } else if ("get_info_clicked".equals(callbackData)) {
                 bot.getUserStates().put(userId, BotState.QUERY_MENU);
                 bot.sendMessageWithKeyboard(chatId,"Выбери что хочешь запросить",

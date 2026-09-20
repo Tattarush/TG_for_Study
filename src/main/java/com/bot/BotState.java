@@ -2,7 +2,6 @@ package com.bot;
 
 public enum BotState {
     MAIN_MENU,  //главное меню
-    AWAITING_INPUT, //ожидание ввода информации
     AWAITING_CONFIRMATION,// Ожидание подтверждения
 
     QUERY_MENU,  // ожидание выбора из вариантов запроса, все, по датам, конкретная дата
@@ -10,7 +9,7 @@ public enum BotState {
     AWAITING_SINGLE_DATE, //ожидание ввода конкретной даты
 
     ADD_INFO_MENU,  //  предложение выбора вариантов внесения информации
-    AWAITING_NEW_INFO, // ожидание ввода новой информации
-    AWAITING_EDIT_INPUT  // ожидание ввода даты и суммы для исправления
-
+    AWAITING_NEW_INPUT, // ожидание ввода новой информации
+    AWAITING_EDIT_INPUT, // ожидание ввода даты и суммы для исправления
+    AWAITING_EDIT_CONFIRM // Запись не найдена, внести как новую? да\нет
 }

@@ -1,6 +1,8 @@
 package com.bot;
 
 
+import com.bot.DTO.FinanceRecord;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -60,6 +62,29 @@ public class FinanceDAO {
             e.printStackTrace();
         }
         return notes;
+    }
+
+    public static void deleteUserNoteByDate(long userId, String dateTarget) {
+        List<String> jsons = getAllUserNotes(userId);
+        com.google.gson.Gson gson = new com.google.gson.Gson();
+
+        String sqlDelete = "DELETE FROM user_notes WHERE user_id = & AND  = ?;";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlDelete)) {
+            for (String json : jsons) {
+                FinanceRecord record = gson.fromJson(json, FinanceRecord.class);
+                if (dateTarget.equals(record.getDate())) {
+                    pstmt.setLong(1, userId);
+                    pstmt.setString(2, json);
+                    pstmt.executeUpdate();
+                }
+            }
+            System.out.println("LOG [Database]: Старые записи за " + dateTarget + " удалены (если они были).");
+        } catch (SQLException e) {
+            System.err.println("Ошибка удаления записи из БД");
+            e.printStackTrace();
+        }
     }
 
 }

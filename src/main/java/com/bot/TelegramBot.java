@@ -104,7 +104,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                    mainMenuHandler.handle(update,user_id, chat_Id);
                     break;
 
-                case AWAITING_INPUT:
+                case ADD_INFO_MENU:
+                case AWAITING_NEW_INPUT:
+                case AWAITING_EDIT_INPUT:
+                case AWAITING_EDIT_CONFIRM:
                     inputInfoHandler.handle(update, user_id, chat_Id);
                     break;
 
