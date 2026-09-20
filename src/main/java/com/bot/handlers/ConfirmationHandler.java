@@ -48,7 +48,7 @@ public class ConfirmationHandler implements BotHandler {
                     //Убираем неверную запись с кэша
                     bot.getUserStates().remove(userId);
                     //Возврат на шаг назад
-                    bot.getUserStates().put(userId, BotState.AWAITING_INPUT);
+                    bot.getUserStates().put(userId, BotState.AWAITING_NEW_INPUT);
                     bot.sendMessageWithKeyboard(chatId, "Ввод отменен\n" +
                                     "\nВведите данные в формате: год.месяц.число(пробел)сумма",
                             InlineKeyboardFactory.createBackButtonKeyboard());

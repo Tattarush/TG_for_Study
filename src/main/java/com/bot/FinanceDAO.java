@@ -2,6 +2,7 @@ package com.bot;
 
 
 import com.bot.DTO.FinanceRecord;
+import com.google.gson.Gson;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -66,14 +67,15 @@ public class FinanceDAO {
 
     public static void deleteUserNoteByDate(long userId, String dateTarget) {
         List<String> jsons = getAllUserNotes(userId);
-        com.google.gson.Gson gson = new com.google.gson.Gson();
-
+        Gson gson = new Gson();
+        //запрос для удаления строки где совпадают юзе и точный текст
         String sqlDelete = "DELETE FROM user_notes WHERE user_id = & AND  = ?;";
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlDelete)) {
             for (String json : jsons) {
                 FinanceRecord record = gson.fromJson(json, FinanceRecord.class);
+                //если дата совпала удаляем эту строку
                 if (dateTarget.equals(record.getDate())) {
                     pstmt.setLong(1, userId);
                     pstmt.setString(2, json);
