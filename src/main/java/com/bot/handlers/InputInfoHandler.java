@@ -39,7 +39,7 @@ public class InputInfoHandler implements BotHandler {
             String callbackData = update.getCallbackQuery().getData();
 
             switch (callbackData) {
-                case "add_new_info_clicked":
+                case "add_info_clicked":
                     bot.getUserStates().put(userId, BotState.AWAITING_NEW_INPUT);
                     bot.sendMessageWithKeyboard(chatId, "Внесение новой записи\n\nВведи данные в формате: `ГГГГ.ММ.ДД СУММА` \nПример: 2026.09.20 5500",
                             InlineKeyboardFactory.createBackButtonKeyboard());
@@ -79,8 +79,7 @@ public class InputInfoHandler implements BotHandler {
                             InlineKeyboardFactory.createBackButtonKeyboard());
                 } else {
                     //Проверка пройдена и текст спарсился
-                    bot.getTemporaryData().put(userId, record);
-                    bot.getUserStates().put(userId, BotState.AWAITING_CONFIRMATION);
+                    goToConfirmation(userId, chatId, record, "Будет внесена НОВАЯ запись:");
                 }
             } else if (currentState == BotState.AWAITING_EDIT_INPUT) {
                 FinanceRecord record = parseAndValidateInput(messageText);

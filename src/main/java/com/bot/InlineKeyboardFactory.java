@@ -120,7 +120,7 @@ public class InlineKeyboardFactory {
 
         InlineKeyboardButton buttonNew = new InlineKeyboardButton();
         buttonNew.setText("Внести новую информацию");
-        buttonNew.setCallbackData("add_new_info_clicked");
+        buttonNew.setCallbackData("add_info_clicked");
 
         InlineKeyboardButton buttonEdit = new InlineKeyboardButton();
         buttonEdit.setText("Редактировать информацию");
