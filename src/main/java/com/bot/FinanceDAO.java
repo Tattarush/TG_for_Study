@@ -69,7 +69,7 @@ public class FinanceDAO {
         List<String> jsons = getAllUserNotes(userId);
         Gson gson = new Gson();
         //запрос для удаления строки где совпадают юзе и точный текст
-        String sqlDelete = "DELETE FROM user_notes WHERE user_id = & AND  = ?;";
+        String sqlDelete = "DELETE FROM user_notes WHERE user_id = ? AND  = ?;";
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlDelete)) {
