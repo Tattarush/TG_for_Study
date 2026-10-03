@@ -14,6 +14,7 @@ import java.util.*;
 
 import com.bot.DTO.FinanceRecord;
 
+//TODO в этом классе логгер еще не добавлен
 
 public class TelegramBot extends TelegramLongPollingBot {
 

@@ -1,5 +1,7 @@
 package com.bot;
 
+//TODO в этом классе логгер еще не добавлен
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,5 +1,6 @@
 package com.bot.handlers;
 
+//TODO в этом классе логгер еще не добавлен
 
 import com.bot.BotState;
 import com.bot.InlineKeyboardFactory;

@@ -1,5 +1,7 @@
 package com.bot;
 
+//TODO в этом классе логгер еще не добавлен
+
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 

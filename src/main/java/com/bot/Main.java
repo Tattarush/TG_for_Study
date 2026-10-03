@@ -1,5 +1,7 @@
 package com.bot;
 
+//TODO в этом классе логгер еще не добавлен
+
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
