@@ -1,8 +1,11 @@
 package com.bot;
 
 
+
 import com.bot.DTO.FinanceRecord;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,13 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Класс-DAO (Data Access Object) для работы с финансовыми записями в таблице USER_NOTES.
- * Отвечает ТОЛЬКО за чистый SQL (INSERT, SELECT).
+ * Класс-DAO (Data Access Object) для работы с финансовыми записями в таблице USER_NOTES
+ * Отвечает ТОЛЬКО за чистый SQL (INSERT, SELECT)
  */
 
 public class FinanceDAO {
-
-    //Сохраняет новую JSON-строку в базу данных H2 (Чистый INSERT).
+    //Получаем логгер
+    public static final Logger logger = LoggerFactory.getLogger(FinanceDAO.class);
+    //Сохраняет новую JSON-строку в базу данных H2 Чистый INSERT
 
     public static void saveUserNote(long userId, String jsonString) {
 
@@ -29,13 +33,13 @@ public class FinanceDAO {
 
             pstmt.setLong(1, userId);
             pstmt.setString(2, jsonString);
-
             pstmt.executeUpdate();
-            System.out.println("LOG [Database]: Запись для " + userId + " успешно добавлена.");
+            //Скобки {} означают подстановку параметра, как в printf
+            logger.info("LOG [Database]: Запись для {} успешно добавлена",userId);
+
 
         } catch (SQLException e) {
-            System.out.println("Ошибка при INSERT в БД");
-            e.printStackTrace();
+            logger.error("Ошибка при INSERT в БД у юзера с ИД - {}",userId, e);
         }
     }
 
@@ -57,10 +61,10 @@ public class FinanceDAO {
                         notes.add(text);
                     }
                 }
+                logger.info("Выгрузка всех записей юзера {} успешно произведена",userId);
             }
         } catch (SQLException e) {
-            System.out.println("Ошибка при SELECT из БД");
-            e.printStackTrace();
+            logger.error("Ошибка при SELECT из БД у юзера - {}",userId, e);
         }
         return notes;
     }
@@ -82,11 +86,9 @@ public class FinanceDAO {
                     pstmt.executeUpdate();
                 }
             }
-            System.out.println("LOG [Database]: Старые записи за " + dateTarget + " удалены (если они были).");
+            logger.info("LOG [Database]: Старые записи за {} удалены (если они были)",dateTarget);
         } catch (SQLException e) {
-            System.err.println("Ошибка удаления записи из БД");
-            e.printStackTrace();
+            logger.error("Ошибка удаления записи из БД у юзера {}", userId, e);
         }
     }
-
 }
