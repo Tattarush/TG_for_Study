@@ -69,7 +69,9 @@ public class FinanceDAO {
         return notes;
     }
 
+    //TODO - класс удаление есть , но кнопки удалить щзапись нет , есть только редактирвоание, добавь
     public static void deleteUserNoteByDate(long userId, String dateTarget) {
+
         List<String> jsons = getAllUserNotes(userId);
         Gson gson = new Gson();
         //запрос для удаления строки где совпадают юзе и точный текст
@@ -86,7 +88,7 @@ public class FinanceDAO {
                     pstmt.executeUpdate();
                 }
             }
-            logger.info("LOG [Database]: Старые записи за {} удалены (если они были)",dateTarget);
+            logger.info("LOG [Database]: Старые записи за {} удалены (если они были)", dateTarget);
         } catch (SQLException e) {
             logger.error("Ошибка удаления записи из БД у юзера {}", userId, e);
         }

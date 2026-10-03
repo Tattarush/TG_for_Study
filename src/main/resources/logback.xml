@@ -1,3 +1,5 @@
+
+<!--FIXME сделай разделение записей по категориям INFO и ERROR-->
 <configuration>
     <!-- Настройка вывода в консоль -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
