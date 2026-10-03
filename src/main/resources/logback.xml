@@ -1,0 +1,36 @@
+<configuration>
+    <!-- Настройка вывода в консоль -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Форматирование вывода информации в консоль-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Настройка вывода информации в файл-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- Куда записывать логи-->
+        <file>logs/bot.log</file>
+
+        <!-- Эта настрйока означает что каждый день создается новый лог -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Имя архива логов за прошлый день-->
+            <fileNamePattern>logs/archived/bot-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- сколько дней хранить историю  -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <!-- формат даты для записи в файл -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Настройки процесса логирования , уровень INFO пишется и в консоль и в файл -->
+    <root level="iNFO">
+        <appender-ref ref="CONSOLE"  />
+        <appender-ref ref="FILE"  />
+
+    </root>
+
+</configuration>
