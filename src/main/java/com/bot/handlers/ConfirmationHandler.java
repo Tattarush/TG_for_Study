@@ -33,7 +33,6 @@ public class ConfirmationHandler implements BotHandler {
                         // Очистка временных записей и возврат статуса в начало
                         bot.getTemporaryData().remove(userId);
                         bot.getUserStates().put(userId, BotState.MAIN_MENU);
-
                         bot.sendMessageWithKeyboard(chatId, "Данные успешно внесены",
                                 InlineKeyboardFactory.createMainMenuKeyboard());
                     } else {
@@ -43,7 +42,7 @@ public class ConfirmationHandler implements BotHandler {
                         bot.getUserStates().put(userId, BotState.MAIN_MENU);
                     }
                     break;
-                //пользователь выбрал - нет , данные неверны
+                //пользователь выбрал - нет, данные неверны
                 case "confirm_no_clicked":
                     //Убираем неверную запись с кэша
                     bot.getUserStates().remove(userId);

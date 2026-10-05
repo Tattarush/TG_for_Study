@@ -94,7 +94,7 @@ public class QueryInfoHandler implements BotHandler {
         Map<String, Double> sortedData = new TreeMap<>();
         for (String json : joins) {
             FinanceRecord r = gson.fromJson(json, FinanceRecord.class);
-            sortedData.put(r.getDate(), sortedData.getOrDefault(r.getDate(), 0.0) + r.getAmount());
+            sortedData.put(r.getDate(), r.getAmount());
         }
         renderBeautifulOutput(chatId, sortedData, "Полная история записей по порядку\n");
         bot.getUserStates().put(userId, BotState.MAIN_MENU);

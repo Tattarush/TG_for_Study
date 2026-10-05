@@ -80,7 +80,7 @@ public class InputInfoHandler implements BotHandler {
                             InlineKeyboardFactory.createBackButtonKeyboard());
                 } else {
                     //Проверка пройдена и текст спарсился
-                    goToConfirmation(userId, chatId, record, "Будет внесена НОВАЯ запись:");
+                    goToConfirmation(userId, chatId, record, "Будет внесена НОВАЯ запись\nЕсли запись уже существует, она будет перезаписана:");
                 }
             } else if (currentState == BotState.AWAITING_EDIT_INPUT) {
                 FinanceRecord record = parseAndValidateInput(messageText);
@@ -99,7 +99,7 @@ public class InputInfoHandler implements BotHandler {
                     bot.sendMessageWithKeyboard(chatId, "Запись за дату " + record.getDate() + " не найдена в базе данных!\n\nХочешь внести её как новую запись?",
                             InlineKeyboardFactory.createEditConfirmKeyboard());
                 } else {
-                    //Если не найдена сначала удаляем старую запись
+                    //Если найдена сначала удаляем старую запись
                     FinanceDAO.deleteUserNoteByDate(userId, record.getDate());
                     //теперь отправлем данные на стандартное подтверждение
                     goToConfirmation(userId, chatId, record, "Старая запись будет ЗАМЕНЕНА на следующую:");
