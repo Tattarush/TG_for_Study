@@ -166,4 +166,26 @@ public class InlineKeyboardFactory {
         return markupInline;
     }
 
+//    Клавиатура для подтвердения редактирования
+
+    public static InlineKeyboardMarkup createEditConfirmationKeyboard() {
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowInline = new ArrayList<>();
+
+        InlineKeyboardButton buttonYes = new InlineKeyboardButton();
+        buttonYes.setText("Да, заменить");
+        buttonYes.setCallbackData("confirm_edit_clicked");
+
+        InlineKeyboardButton buttonNo = new InlineKeyboardButton();
+        buttonNo.setText("Нет");
+        buttonNo.setCallbackData("confirm_no_clicked");
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(buttonYes);
+        row1.add(buttonNo);
+
+        rowInline.add(row1);
+        markupInline.setKeyboard(rowInline);
+        return markupInline;
+    }
 }

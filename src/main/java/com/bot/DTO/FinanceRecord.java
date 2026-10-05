@@ -1,5 +1,5 @@
 package com.bot.DTO;
-//TODO в этом классе логгер еще не добавлен
+
 public class FinanceRecord {
     private String date;
     private double amount;

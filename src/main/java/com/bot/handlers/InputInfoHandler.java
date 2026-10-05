@@ -78,9 +78,23 @@ public class InputInfoHandler implements BotHandler {
                     //если проверка не пройдена запрос на ввод заново
                     bot.sendMessageWithKeyboard(chatId, "Формат не соответствует, попробуй заново",
                             InlineKeyboardFactory.createBackButtonKeyboard());
+                    return;
+                }
+
+                //Проверка есть ли запись
+                boolean isDateExist = checkDateInDatabase(userId, record.getDate());
+
+                if (isDateExist) {
+                    // Если запись есть — ругаем и предлагаем воспользоваться меню редактирования
+                    bot.sendMessageWithKeyboard(chatId,"Запись за дату " + record.getDate() + " уже существует!\n\n" +
+                                    "Если хочешь изменить сумму, вернись в меню и выбери 'Отредактировать информацию'.",
+                            InlineKeyboardFactory.createBackButtonKeyboard());
                 } else {
                     //Проверка пройдена и текст спарсился
-                    goToConfirmation(userId, chatId, record, "Будет внесена НОВАЯ запись\nЕсли запись уже существует, она будет перезаписана:");
+                    bot.getTemporaryData().put(userId, record);
+                    bot.getUserStates().put(userId, BotState.AWAITING_CONFIRMATION);
+                    bot.sendMessageWithKeyboard(chatId, "Будет внесена НОВАЯ запись\nЕсли запись уже существует, она будет перезаписана:",
+                            InlineKeyboardFactory.createConfirmationKeyboard());
                 }
             } else if (currentState == BotState.AWAITING_EDIT_INPUT) {
                 FinanceRecord record = parseAndValidateInput(messageText);
@@ -89,9 +103,8 @@ public class InputInfoHandler implements BotHandler {
                             InlineKeyboardFactory.createBackButtonKeyboard());
                     return;
                 }
-                //Проверка есть ли запись
-                boolean isDateExist = checkDateInDatabase(userId, record.getDate());
 
+                boolean isDateExist = checkDateInDatabase(userId, record.getDate());
                 if (!isDateExist) {
                     //если запись не найдена сохраняем и спрашиваем внести или нет
                     bot.getTemporaryData().put(userId, record);
@@ -99,10 +112,13 @@ public class InputInfoHandler implements BotHandler {
                     bot.sendMessageWithKeyboard(chatId, "Запись за дату " + record.getDate() + " не найдена в базе данных!\n\nХочешь внести её как новую запись?",
                             InlineKeyboardFactory.createEditConfirmKeyboard());
                 } else {
-                    //Если найдена сначала удаляем старую запись
-                    FinanceDAO.deleteUserNoteByDate(userId, record.getDate());
+
+                    bot.getTemporaryData().put(userId, record);
+                    bot.getUserStates().put(userId, BotState.AWAITING_CONFIRMATION);
                     //теперь отправлем данные на стандартное подтверждение
-                    goToConfirmation(userId, chatId, record, "Старая запись будет ЗАМЕНЕНА на следующую:");
+                    bot.sendMessageWithKeyboard(chatId, "Старая запись будет ЗАМЕНЕНА на следующую:Новая Сумма: \n" + record.getAmount() +
+                                    " руб.\\n\\nИнформация верна?",
+                            InlineKeyboardFactory.createConfirmationKeyboard());
                 }
             }
             return;

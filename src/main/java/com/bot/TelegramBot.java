@@ -9,16 +9,17 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.*;
+
 
 import com.bot.DTO.FinanceRecord;
 
-//TODO в этом классе логгер еще не добавлен
 
 public class TelegramBot extends TelegramLongPollingBot {
 
-
+    public static final Logger logger = LoggerFactory.getLogger(TelegramBot.class);
     private final Set<Long> users = new HashSet<>();
     private final Long admin_ID;
 
@@ -90,15 +91,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (user_id == 0) return;
 
         if (!users.contains(user_id)) {
-                sendMessage(chat_Id, "Брысь отсюда!");
-                System.out.println("Заблокирован доступ - ид " + user_id);
-                sendMessage(admin_ID, "Попытка доступа к боту, ИД юзера - "+ user_id);
-                return;
+            sendMessage(chat_Id, "Брысь отсюда!");
+            logger.info("Заблокирован доступ - ид {}", user_id);
+            sendMessage(admin_ID, "Попытка доступа к боту, ИД юзера - "+ user_id);
+            return;
             }
 
         BotState currentState = userStates.getOrDefault(user_id, BotState.MAIN_MENU);
-
-
             switch (currentState) {
 
                 case MAIN_MENU:
@@ -137,7 +136,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            logger.error("Ошибка отправки ответа с инлайн клавиатурой", e);
         }
     }
 
@@ -150,8 +149,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            System.out.println("Ошибка ответа");
-            e.getMessage();
+            logger.error("Ошибка ответа", e.getMessage());
         }
     }
 }
