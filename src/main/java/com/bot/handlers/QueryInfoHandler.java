@@ -114,7 +114,7 @@ public class QueryInfoHandler implements BotHandler {
         for (String json : jsons) {
             FinanceRecord r = gson.fromJson(json, FinanceRecord.class);
             if (text.equals(r.getDate())) {
-                sortedData.put(r.getDate(), sortedData.getOrDefault(r.getDate(), 0.0));
+                sortedData.put(r.getDate(), r.getAmount());
             }
         }
         if (sortedData.isEmpty()) {
@@ -123,6 +123,7 @@ public class QueryInfoHandler implements BotHandler {
             bot.getUserStates().put(userId, BotState.QUERY_MENU);
             return;
         } else {
+
             renderBeautifulOutput(chatId, sortedData, "Информация по выбранной дате");
         }
         bot.getUserStates().put(userId, BotState.MAIN_MENU);
