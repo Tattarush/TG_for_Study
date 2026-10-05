@@ -116,8 +116,8 @@ public class InputInfoHandler implements BotHandler {
                     bot.getTemporaryData().put(userId, record);
                     bot.getUserStates().put(userId, BotState.AWAITING_CONFIRMATION);
                     //теперь отправлем данные на стандартное подтверждение
-                    bot.sendMessageWithKeyboard(chatId, "Старая запись будет ЗАМЕНЕНА на следующую:Новая Сумма: \n" + record.getAmount() +
-                                    " руб.\\n\\nИнформация верна?",
+                    bot.sendMessageWithKeyboard(chatId, "Старая запись будет ЗАМЕНЕНА на следующую:\nНовая Сумма: \n" + record.getAmount() +
+                                    " руб.\n\nИнформация верна?",
                             InlineKeyboardFactory.createConfirmationKeyboard());
                 }
             }

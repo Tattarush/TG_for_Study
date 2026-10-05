@@ -23,6 +23,7 @@ public class ConfirmationHandler implements BotHandler {
                 case "confirm_yes_clicked":
                     //Забираем информацию о дате и сумме
                     executeSave(userId, chatId, false);
+                    break;
 //                    FinanceRecord record = bot.getTemporaryData().get(userId);
 //
 //                    if (record != null) {
@@ -72,13 +73,13 @@ public class ConfirmationHandler implements BotHandler {
             if (needDeleteFirst) {
                 FinanceDAO.deleteUserNoteByDate(userId, record.getDate());
             }
+
             String jsonString = new com.google.gson.Gson().toJson(record);
             FinanceDAO.saveUserNote(userId, jsonString);
 
             bot.getTemporaryData().remove(userId);
             bot.getUserStates().put(userId, BotState.MAIN_MENU);
             bot.sendMessageWithKeyboard(chatId, "Данные успешно обновлены", InlineKeyboardFactory.createMainMenuKeyboard());
-
         } else {
             bot.sendMessageWithKeyboard(chatId, "Ошибка, данные потеряны", InlineKeyboardFactory.createMainMenuKeyboard());
             bot.getUserStates().put(userId, BotState.MAIN_MENU);
