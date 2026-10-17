@@ -28,7 +28,7 @@ public class MainMenuHandler implements BotHandler {
                         InlineKeyboardFactory.createAddInfoMenuKeyboard());
             } else if ("get_info_clicked".equals(callbackData)) {
                 bot.getUserStates().put(userId, BotState.QUERY_MENU);
-                bot.sendMessageWithKeyboard(chatId,"Выбери что хочешь запросить",
+                bot.sendMessageWithKeyboard(chatId,"Выбери, что хочешь запросить",
                         InlineKeyboardFactory.createQueryMenuKeyboard());
             }
         } else if (update.hasMessage() && update.getMessage().hasText()) {

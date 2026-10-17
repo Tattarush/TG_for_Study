@@ -153,7 +153,7 @@ public class InlineKeyboardFactory {
         buttonYes.setCallbackData("edit_force_insert_yes");
 
         InlineKeyboardButton buttonNo = new InlineKeyboardButton();
-        buttonNo.setText("Нет, отмени");
+        buttonNo.setText("Нет, отмена");
         buttonNo.setCallbackData("edit_force_insert_no");
 
         List<InlineKeyboardButton> row1 = new ArrayList<>();
