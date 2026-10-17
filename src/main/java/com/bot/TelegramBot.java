@@ -42,7 +42,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             for (String idStr : whiteUsers.split(",")) {
                 users.add(Long.parseLong(idStr.trim()));
             }
-            System.out.println("Белый список успешно загружен");
+            logger.info("Белый список успешно загружен");
         }
     }
 
@@ -51,7 +51,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         String botName = System.getenv("botName");
 
         if (botName == null && botName.isEmpty()) {
-            System.out.println("Имя бота не найдено!Проверь внимательно");
+            logger.error("Имя бота не найдено!Проверь внимательно");
         }
         return botName;
     }
@@ -61,7 +61,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         String botToken = System.getenv("token");
 
         if (botToken == null && botToken.isEmpty()) {
-            System.out.println("Токен неверен! или не найден");
+            logger.error("Токен неверен! или не найден");
         }
         return botToken;
     }

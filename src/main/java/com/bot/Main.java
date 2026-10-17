@@ -1,12 +1,16 @@
 package com.bot;
 
-//TODO в этом классе логгер еще не добавлен
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class Main {
+
+    public static final Logger logger = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) {
         //инициализация БД
         DatabaseManager.initDatabase();
@@ -15,15 +19,12 @@ public class Main {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             //Регистрация бота
             TelegramBot myBot = new TelegramBot();
-
             telegramBotsApi.registerBot(myBot);
-
-            System.out.println("Бот запущен");
+            logger.info("Бот запущен");
 
         } catch (TelegramApiException e) {
-            System.out.println("Ошибка подключения к боту " + e.getMessage());
+            logger.error("Ошибка подключения к боту ", e);
             e.printStackTrace();
         }
-
     }
 }

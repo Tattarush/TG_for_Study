@@ -1,7 +1,5 @@
 package com.bot.handlers;
 
-//TODO в этом классе логгер еще не добавлен
-
 import com.bot.BotState;
 import com.bot.InlineKeyboardFactory;
 import com.bot.TelegramBot;
@@ -41,7 +39,6 @@ public class MainMenuHandler implements BotHandler {
             } else {
                 bot.sendMessageWithKeyboard(chatId, "Команда не распознана, используй\n/start заново", null);
             }
-
         }
     }
 }

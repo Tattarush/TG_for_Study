@@ -1,7 +1,5 @@
 package com.bot.handlers;
 
-//TODO в этом классе логгер еще не добавлен
-
 import com.bot.BotState;
 import com.bot.DTO.FinanceRecord;
 import com.bot.FinanceDAO;
@@ -93,7 +91,10 @@ public class InputInfoHandler implements BotHandler {
                     //Проверка пройдена и текст спарсился
                     bot.getTemporaryData().put(userId, record);
                     bot.getUserStates().put(userId, BotState.AWAITING_CONFIRMATION);
-                    bot.sendMessageWithKeyboard(chatId, "Будет внесена НОВАЯ запись\nЕсли запись уже существует, она будет перезаписана:",
+                    bot.sendMessageWithKeyboard(chatId, "Будет внесена НОВАЯ запись\nЕсли запись уже существует, она будет перезаписана\n" +
+                                    "Данные указаны верно?\n" +
+                                    "Дата - "+ record.getDate()+"\n"+
+                                    "Сумма - "+ record.getAmount(),
                             InlineKeyboardFactory.createConfirmationKeyboard());
                 }
             } else if (currentState == BotState.AWAITING_EDIT_INPUT) {

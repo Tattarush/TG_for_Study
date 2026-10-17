@@ -1,12 +1,15 @@
 package com.bot;
 
-//TODO в этом классе логгер еще не добавлен
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseManager {
+
+    public static final Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
 
     private static final String DB_URL = "jdbc:h2:./db/botdata";
     private static final String USER = "sa";
@@ -16,7 +19,7 @@ public class DatabaseManager {
         try {
             Class.forName("org.h2.Driver");
         } catch (ClassNotFoundException e) {
-            System.err.println("Драйвер не найден в библиотеках проекта");
+            logger.error("Драйвер не найден в библиотеках проекта", e);
             e.printStackTrace();
         }
         return DriverManager.getConnection(DB_URL, USER, PASS);
@@ -32,11 +35,10 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
         Statement stmt = conn.createStatement()){
             stmt.execute(createTAbleSQL);
-            System.out.println("База данных успешно инициализирована");
+            logger.info("База данных успешно инициализирована");
         } catch (SQLException e) {
-            System.out.println("ошибка при инициализации базы данных!");
+            logger.error("ошибка при инициализации базы данных!", e);
             e.printStackTrace();
         }
-
     }
 }
