@@ -38,6 +38,11 @@ public class QueryInfoHandler implements BotHandler {
                 case "query_all_clicked":
                     showAllRecords(userId, chatId);
                     break;
+
+                case "query_month_clicked":
+                    bot.getUserStates().put(userId, BotState.AWAITING_MONTH_INPUT);
+                    bot.sendMessageWithKeyboard(chatId, "Выбери интересующий месяц", InlineKeyboardFactory.createMonthSelectKeyboard());
+                    break;
                 case "query_period_clicked":
                     bot.getUserStates().put(userId, BotState.AWAITING_PERIOD_INPUT);
                     bot.sendMessageWithKeyboard(chatId, "Введи желаемый диапазон дат\n" +

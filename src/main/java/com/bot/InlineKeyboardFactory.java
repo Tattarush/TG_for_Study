@@ -83,9 +83,13 @@ public class InlineKeyboardFactory {
         InlineKeyboardButton buttonAll = new InlineKeyboardButton();
         buttonAll.setText("Все записи");
         buttonAll.setCallbackData("query_all_clicked");
+//        Кнопка выбора выгрузки за конкретный месяц
+        InlineKeyboardButton buttonMonth = new InlineKeyboardButton();
+        buttonMonth.setText("За месяц, c предполагаемой премией");
+        buttonMonth.setCallbackData("query_month_clicked");
 //кнопка периода
         InlineKeyboardButton buttonPeriod = new InlineKeyboardButton();
-        buttonPeriod.setText("За период");
+        buttonPeriod.setText("За указанный период");
         buttonPeriod.setCallbackData("query_period_clicked");
 //Кнопка конкретной записи
         InlineKeyboardButton buttonSingle = new InlineKeyboardButton();
@@ -101,14 +105,17 @@ public class InlineKeyboardFactory {
         List<InlineKeyboardButton> r1 = new ArrayList<>();
         r1.add(buttonAll);
         List<InlineKeyboardButton> r2 = new ArrayList<>();
-        r2.add(buttonPeriod);
+        r2.add(buttonMonth);
         List<InlineKeyboardButton> r3 = new ArrayList<>();
-        r3.add(buttonSingle);
+        r3.add(buttonPeriod);
         List<InlineKeyboardButton> r4 = new ArrayList<>();
-        r4.add(buttonBack);
+        r4.add(buttonSingle);
+        List<InlineKeyboardButton> r5 = new ArrayList<>();
+        r5.add(buttonBack);
 
         rowInline.add(r1);rowInline.add(r2);
         rowInline.add(r3);rowInline.add(r4);
+        rowInline.add(r5);
 
         markupInline.setKeyboard(rowInline);
         return markupInline;
@@ -186,4 +193,37 @@ public class InlineKeyboardFactory {
         markupInline.setKeyboard(rowInline);
         return markupInline;
     }
+
+    public static InlineKeyboardMarkup createMonthSelectKeyboard() {
+        String[] months = {"Январь", "Февраль", "Март", "Апрель",
+                "Май", "Июнь", "Июль", "Август",
+                "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowInline = new ArrayList<>();
+        List<InlineKeyboardButton> currentRow = new ArrayList<>();
+
+        for (int i = 0; i < months.length; i++) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(months[i]);
+            button.setCallbackData("month_" + i + 1);
+
+            currentRow.add(button);
+
+            if (currentRow.size() == 2 || i == months.length - 1) {
+                rowInline.add(currentRow);
+                currentRow = new ArrayList<>();
+            }
+        }
+        currentRow = new ArrayList<>();
+        InlineKeyboardButton buttonBack = new InlineKeyboardButton();
+        buttonBack.setText("Назад в главное меню");
+        buttonBack.setCallbackData("back_to_main_clicked");
+        currentRow.add(buttonBack);
+        rowInline.add(currentRow);
+        markupInline.setKeyboard(rowInline);
+        return markupInline;
+    }
+
+
 }
