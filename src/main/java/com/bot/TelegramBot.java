@@ -116,6 +116,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     break;
 
                 case QUERY_MENU:
+                case AWAITING_MONTH_INPUT:
                 case AWAITING_PERIOD_INPUT:
                 case AWAITING_SINGLE_DATE:
                     queryInfoHandler.handle(update, user_id, chat_Id);

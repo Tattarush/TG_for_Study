@@ -206,7 +206,7 @@ public class InlineKeyboardFactory {
         for (int i = 0; i < months.length; i++) {
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(months[i]);
-            button.setCallbackData("month_" + i + 1);
+            button.setCallbackData("month_" + (i + 1));
 
             currentRow.add(button);
 
