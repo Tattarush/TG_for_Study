@@ -214,7 +214,7 @@ public class QueryInfoHandler implements BotHandler {
                     InlineKeyboardFactory.createQueryMenuKeyboard());
             bot.getUserStates().put(userId, BotState.QUERY_MENU);
         } else {
-            renderBeautifulOutput(chatId, sortedData, "Результат выборки за " + monthName + " " + " г.\n");
+            renderBeautifulOutput(chatId, sortedData, "Результат выборки за " + monthName + " " + currentYear + " г.\n");
             bot.getUserStates().put(userId, BotState.MAIN_MENU);
         }
     }

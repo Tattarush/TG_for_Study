@@ -85,7 +85,7 @@ public class InlineKeyboardFactory {
         buttonAll.setCallbackData("query_all_clicked");
 //        Кнопка выбора выгрузки за конкретный месяц
         InlineKeyboardButton buttonMonth = new InlineKeyboardButton();
-        buttonMonth.setText("За месяц, c предполагаемой премией");
+        buttonMonth.setText("За конкретный месяц");
         buttonMonth.setCallbackData("query_month_clicked");
 //кнопка периода
         InlineKeyboardButton buttonPeriod = new InlineKeyboardButton();
