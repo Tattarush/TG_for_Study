@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class QueryInfoHandler implements BotHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(QueryInfoHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(QueryInfoHandler.class);
     private final TelegramBot bot;
     private final Gson gson = new Gson();
 
@@ -44,7 +44,7 @@ public class QueryInfoHandler implements BotHandler {
                 answer.setCallbackQueryId(queryId);
                 bot.execute(answer);
             } catch (Exception e) {
-                log.error("Не удалось ответить на callback", e);
+                logger.error("Не удалось ответить на callback", e);
             }
             if ("back_to_main_clicked".equals(callbackData)) {
                 bot.getUserStates().put(userId, BotState.MAIN_MENU);
